@@ -12,7 +12,7 @@ const GRID_WIDTH = 50;
 const GRID_HEIGHT = 50;
 const DEFAULT_CELL_SIZE = 16;
 
-const BOMB_COUNT = 200;
+const BOMB_COUNT = 415;
 
 const ATLAS_NUMS_OFFSET = 0;
 const ATLAS_EMPTY = 9;
@@ -173,7 +173,7 @@ fn countBombNeighbors(pos: Pos, bombs: [BOMB_COUNT]Pos) usize {
     return count;
 }
 
-const GameState = enum { playing, paused, dead, win };
+const GameState = enum { playing, dead, win };
 
 fn initBombs(bombs: *[BOMB_COUNT]Pos, rand: std.rand.Random) void {
     for (bombs) |*b| b.* = .{ .x = rand.uintLessThan(usize, GRID_WIDTH), .y = rand.uintLessThan(usize, GRID_HEIGHT) };
@@ -283,7 +283,6 @@ pub fn main() !void {
             const face: usize = if (c.IsMouseButtonDown(c.MOUSE_BUTTON_LEFT) and c.CheckCollisionPointRec(.{ .x = @floatFromInt(c.GetMouseX()), .y = @floatFromInt(c.GetMouseY()) }, face_dst)) FACE_PRESSED else switch (game_state) {
                 .dead => FACE_DEAD,
                 .win => FACE_SUNGLASSES,
-                .paused => FACE_HAPPY,
                 .playing => if (c.IsMouseButtonDown(c.MOUSE_BUTTON_LEFT) and getMouseLocInGrid(scroll_x, scroll_y, cell_size) != null) FACE_SURPRISED else FACE_HAPPY,
             };
             c.DrawTexturePro(face_atlas, getFace(face), face_dst, .{}, 0, c.WHITE);
@@ -415,9 +414,6 @@ pub fn main() !void {
                         }
                     }
                 }
-            },
-            .paused => {
-                if (c.IsKeyPressed(c.KEY_SPACE)) game_state = .playing;
             },
             .win, .dead => {},
         }
